@@ -31,6 +31,12 @@ public class TipoTramiteService {
 
     @Transactional
     public TipoTramite crear(CrearRequest req) {
+        // El nombre es unique en BD: sin este chequeo la violacion de constraint
+        // subia como DataIntegrityViolationException y salia como 500 sin mensaje.
+        // (La carrera entre dos inserts simultaneos la cubre ApiExceptionHandler.)
+        if (repo.existsByNombreIgnoreCase(req.nombre())) {
+            throw new NombreDuplicadoException(req.nombre());
+        }
         return repo.save(new TipoTramite(req.nombre(), req.requisitos(), req.cupoDiario()));
     }
 

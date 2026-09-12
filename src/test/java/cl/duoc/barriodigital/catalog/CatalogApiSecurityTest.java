@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -53,5 +54,24 @@ class CatalogApiSecurityTest {
                 .content("{\"nombre\":\"Poda de arbol\",\"requisitos\":\"foto\",\"cupoDiario\":10}")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_Admin"))))
            .andExpect(status().isCreated());
+    }
+
+    /**
+     * Regresion: el nombre es unique en BD y la violacion de constraint subia sin
+     * manejar, devolviendo un 500 sin mensaje. Un dato repetido del usuario es un
+     * conflicto (409) y tiene que explicar que paso.
+     */
+    @Test
+    void crear_con_nombre_repetido_409_con_mensaje() throws Exception {
+        String cuerpo = "{\"nombre\":\"Retiro de escombros\",\"requisitos\":\"foto\",\"cupoDiario\":5}";
+
+        mvc.perform(post("/catalog/procedures").contentType("application/json").content(cuerpo)
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_Admin"))))
+           .andExpect(status().isCreated());
+
+        mvc.perform(post("/catalog/procedures").contentType("application/json").content(cuerpo)
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_Admin"))))
+           .andExpect(status().isConflict())
+           .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("Retiro de escombros")));
     }
 }
