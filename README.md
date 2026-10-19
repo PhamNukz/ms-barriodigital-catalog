@@ -40,3 +40,9 @@ docker run -p 8082:8082 --env-file .env ms-barriodigital-catalog
 
 Imagen publicada automáticamente en cada push a `main`:
 `ghcr.io/phamnukz/ms-barriodigital-catalog:latest`.
+
+## Matriz de funcionalidades
+
+El estado de cumplimiento de la Prueba 2 (EP3/EP4), con la matriz de funcionalidades y la evidencia de cada
+componente, está en [Cumplimiento-Prueba2.md](https://github.com/PhamNukz/barriodigital-docs/blob/main/Cumplimiento-Prueba2.md)
+(repo `barriodigital-docs`).
